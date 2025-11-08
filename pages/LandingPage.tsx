@@ -1,0 +1,186 @@
+import React from 'react';
+import { Page, User, ApplicationStatusEnum, ApplicationStatusData } from '../types';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import UserCircleIcon from '../components/icons/UserCircleIcon';
+import ClipboardCheckIcon from '../components/icons/ClipboardCheckIcon';
+import AcademicCapIcon from '../components/icons/AcademicCapIcon';
+import { useApplicationData } from '../hooks/useApplicationData';
+import EmailVerificationBanner from '../components/EmailVerificationBanner';
+
+
+interface LandingPageProps {
+  navigate: (page: Page) => void;
+  user: User | null;
+  onLogout: () => void;
+}
+
+const ActionCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  description: React.ReactNode;
+  buttonText: string;
+  onButtonClick: () => void;
+  status?: string;
+  statusColor?: string;
+}> = ({ icon, title, description, buttonText, onButtonClick, status, statusColor }) => (
+    <div className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl hover:transform hover:-translate-y-1 transition-all duration-300 flex flex-col text-center items-center border">
+        <div className="mb-4 text-sky-600">{icon}</div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{title}</h3>
+        <p className="text-gray-600 mb-4 flex-grow">{description}</p>
+        {status && (
+            <div className="mb-4">
+                <span className="font-semibold text-gray-700">Trạng thái: </span>
+                <span className={`font-bold ${statusColor}`}>{status}</span>
+            </div>
+        )}
+        <button
+            onClick={onButtonClick}
+            className="mt-auto w-full bg-sky-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-sky-700 transition-colors"
+        >
+            {buttonText}
+        </button>
+    </div>
+);
+
+const getStatusInfo = (status: ApplicationStatusEnum | undefined) => {
+  if (!status) {
+    return { text: 'Chưa có kết quả', color: 'text-gray-500' };
+  }
+  switch (status) {
+    case ApplicationStatusEnum.VALID:
+      return { text: status, color: 'text-green-600' };
+    case ApplicationStatusEnum.NEEDS_UPDATE:
+      return { text: status, color: 'text-yellow-600' };
+    case ApplicationStatusEnum.INVALID:
+      return { text: status, color: 'text-red-600' };
+    case ApplicationStatusEnum.PROCESSING:
+    case ApplicationStatusEnum.SUBMITTED:
+      return { text: status, color: 'text-blue-600' };
+    case ApplicationStatusEnum.NOT_SUBMITTED:
+       return { text: status, color: 'text-gray-600' };
+    default:
+      return { text: 'Chưa có kết quả', color: 'text-gray-500' };
+  }
+};
+
+const getAdmissionStatusInfo = (result: ApplicationStatusData['admissionResult']) => {
+    switch (result) {
+        case 'Trúng tuyển':
+            return { text: result, color: 'text-green-600' };
+        case 'Không trúng tuyển':
+            return { text: result, color: 'text-red-600' };
+        default:
+            return { text: 'Chưa có kết quả', color: 'text-gray-500' };
+    }
+};
+
+
+const LandingPage: React.FC<LandingPageProps> = ({ navigate, user, onLogout }) => {
+  const { statusData, loading: statusLoading } = useApplicationData(user);
+  
+  const statusInfo = getStatusInfo(statusData?.status);
+  const admissionStatusInfo = getAdmissionStatusInfo(statusData?.admissionResult);
+
+  return (
+    <div 
+      className="flex flex-col min-h-screen bg-white"
+    >
+      <Header user={user} onLogout={onLogout} navigate={navigate} />
+      
+      {user && !user.emailVerified && (
+        <EmailVerificationBanner />
+      )}
+      
+      <main className="flex-grow">
+        {!user ? (
+          // Content for Logged-out users
+          <>
+            {/* Banner Section */}
+            <div className="bg-sky-500 py-12 text-center">
+              <div className="container mx-auto px-4">
+                <h1 
+                  className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight"
+                >
+                  CỔNG THÔNG TIN TUYỂN SINH SAU ĐẠI HỌC
+                </h1>
+                <p 
+                  className="text-lg md:text-xl text-sky-100 max-w-3xl mx-auto"
+                >
+                  Đừng bỏ lỡ cơ hội nâng cao trình độ học vấn của bạn. Đăng ký ngay hôm nay <br/> để trở thành một phần của cộng đồng chúng tôi.
+                </p>
+              </div>
+            </div>
+
+            {/* Action Cards Section */}
+            <div className="bg-white py-16">
+              <div className="container mx-auto px-4">
+                <div className="max-w-4xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <ActionCard
+                            icon={<UserCircleIcon className="w-12 h-12" />}
+                            title="Đăng nhập tài khoản"
+                            description="Truy cập hồ sơ của bạn và tiếp tục quá trình đăng ký."
+                            buttonText="Đăng nhập"
+                            onButtonClick={() => navigate(Page.Login)}
+                        />
+                        <ActionCard
+                            icon={<AcademicCapIcon className="w-12 h-12" />}
+                            title="Tạo tài khoản mới"
+                            description="Đăng ký tài khoản để bắt đầu nộp hồ sơ dự tuyển ngay hôm nay."
+                            buttonText="Đăng ký ngay"
+                            onButtonClick={() => navigate(Page.Register)}
+                        />
+                    </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          // Content for Logged-in users
+          <div className="container mx-auto px-4 py-8 md:py-16 flex items-center">
+             <div className="max-w-5xl mx-auto w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <ActionCard 
+                        icon={<UserCircleIcon className="w-12 h-12 text-sky-600" />}
+                        title="Đăng ký & Cập nhật Hồ sơ"
+                        description={<>Điền mới hoặc chỉnh sửa thông tin<br/>hồ sơ dự tuyển của bạn.</>}
+                        buttonText="Đi đến hồ sơ"
+                        onButtonClick={() => navigate(Page.Application)}
+                    />
+                    <ActionCard 
+                        icon={<ClipboardCheckIcon className="w-12 h-12 text-green-600" />}
+                        title="Kết quả xét hồ sơ"
+                        description={<>Kiểm tra trạng thái và kết quả<br/>vòng xét duyệt hồ sơ.</>}
+                        buttonText="Xem chi tiết"
+                        onButtonClick={() => {
+                            sessionStorage.setItem('statusPageView', 'review');
+                            navigate(Page.ApplicationStatus);
+                        }}
+                        status={statusLoading ? 'Đang tải...' : statusInfo.text}
+                        statusColor={statusInfo.color}
+                    />
+                    <ActionCard 
+                        icon={<AcademicCapIcon className="w-12 h-12 text-yellow-500" />}
+                        title="Kết quả trúng tuyển"
+                        description={<>Xem kết quả cuối cùng<br/>của kỳ xét tuyển.</>}
+                        buttonText="Xem kết quả"
+                        onButtonClick={() => {
+                            sessionStorage.setItem('statusPageView', 'admission');
+                            navigate(Page.ApplicationStatus);
+                        }}
+                        status={statusLoading ? 'Đang tải...' : admissionStatusInfo.text}
+                        statusColor={admissionStatusInfo.color}
+                    />
+                </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default LandingPage;

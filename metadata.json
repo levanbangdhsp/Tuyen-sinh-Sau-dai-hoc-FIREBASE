@@ -1,0 +1,5 @@
+{
+  "name": "Cổng thông tin TSSĐH Firebase",
+  "description": "Một ứng dụng web dành cho việc tuyển sinh chương trình sau đại học, cho phép người dùng đăng ký, quản lý tài khoản và nộp hồ sơ dự tuyển.",
+  "requestFramePermissions": []
+}
