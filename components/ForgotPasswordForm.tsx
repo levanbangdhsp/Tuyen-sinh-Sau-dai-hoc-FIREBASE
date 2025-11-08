@@ -29,7 +29,7 @@ const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ navigate }) => 
     // 'auth/invalid-continue-uri' error. In sandboxed environments,
     // window.location.href may not provide a valid domain, causing the API call to fail.
     const actionCodeSettings = {
-      url: 'https://tuyensinhsdh-hcmue.web.app',
+         url: 'https://tuyensinh-sdh-hcmue.netlify.app', // <--- Địa chỉ mới
       handleCodeInApp: true,
     };
 

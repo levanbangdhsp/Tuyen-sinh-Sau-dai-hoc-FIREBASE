@@ -112,7 +112,7 @@ export const useApplicationData = (user: User | null) => {
               missingDocuments: missingDocs,
               timeline: [
                   { stage: 'Nộp hồ sơ', date: submissionDate, completed: true, current: false },
-                  { stage: 'Yêu cầu bổ sung (tự động)', date: new Date().toLocaleDateString('vi-VN'), completed: false, current: true },
+                  { stage: 'Yêu cầu bổ sung (tự động)', date: new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }), completed: false, current: true },
                   { stage: 'Phòng Sau đại học xử lý', date: null, completed: false, current: false },
                   { stage: 'Hoàn tất xét duyệt', date: null, completed: false, current: false },
               ],
